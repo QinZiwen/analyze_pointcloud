@@ -11,5 +11,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall -pthread")
 
 INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/third_party
+    ${PROJECT_SOURCE_DIR}/third_party/eigen3
 )
+
+add_subdirectory(PCA_Downsample)
