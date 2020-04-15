@@ -10,6 +10,7 @@ void PCA::input(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& inp
 bool PCA::compute(eigen_vector_order order) {
     // Normalized by the center
     _centered_matrix = _input_matrix.colwise() - _input_matrix.rowwise().mean();
+    // std::cout << _centered_matrix << std::endl;
 
     if (_input_matrix.cols() == 1) {
         _covariance_matrix = (_centered_matrix * _centered_matrix.adjoint());
