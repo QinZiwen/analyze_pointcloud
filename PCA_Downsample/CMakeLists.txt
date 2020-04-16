@@ -1,8 +1,13 @@
 ADD_LIBRARY(PCA SHARED
-    pca.cpp)
+    pca.cpp
+    normal_estimator.cpp)
+TARGET_LINK_LIBRARIES(PCA KD_tree)
 
-add_executable(pca_test pca_test.cpp)
-target_link_libraries(pca_test PCA)
+ADD_EXECUTABLE(pca_test pca_test.cpp)
+TARGET_LINK_LIBRARIES(pca_test PCA)
 
-add_executable(pcd_dimension_reduction pcd_dimension_reduction.cpp)
-target_link_libraries(pcd_dimension_reduction PCA)
+ADD_EXECUTABLE(pcd_dimension_reduction pcd_dimension_reduction.cpp)
+TARGET_LINK_LIBRARIES(pcd_dimension_reduction PCA)
+
+ADD_EXECUTABLE(estimate_pts_normal estimate_pts_normal.cpp)
+TARGET_LINK_LIBRARIES(estimate_pts_normal PCA)

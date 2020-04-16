@@ -146,6 +146,23 @@ KDTree::KDTree(pointVec point_array) {
     root = KDTree::make_tree(begin, end, length, level);
 }
 
+void KDTree::set_points(pointVec point_array) {
+    leaf = std::make_shared< KDNode >();
+    // iterators
+    pointIndexArr arr;
+    for (size_t i = 0; i < point_array.size(); i++) {
+        arr.push_back(pointIndex(point_array.at(i), i));
+    }
+
+    auto begin = arr.begin();
+    auto end = arr.end();
+
+    size_t length = arr.size();
+    size_t level = 0;  // starting
+
+    root = KDTree::make_tree(begin, end, length, level);
+}
+
 KDNodePtr KDTree::nearest_(   //
     const KDNodePtr &branch,  //
     const point_t &pt,        //

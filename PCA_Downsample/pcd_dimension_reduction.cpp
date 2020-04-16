@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
     pca.compute(PCA::eigen_vector_order::DESCENDING);
     std::cout << "eigen values: \n" << pca.get_eigen_values() << std::endl;
     std::cout << "eigen vector: \n" << pca.get_eigen_vector() << std::endl;
-    const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> eigen_vector = pca.get_eigen_vector();
+    const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& eigen_vector = pca.get_eigen_vector();
 
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> eigen_1 = pcd.transpose() * eigen_vector.col(0);
     // Reconstruct, x^T * z = a  --> x^T = a * z^T

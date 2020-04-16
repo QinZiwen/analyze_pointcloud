@@ -84,6 +84,7 @@ class KDTree {
    public:
     KDTree() = default;
     explicit KDTree(pointVec point_array);
+    void set_points(pointVec point_array);
 
    private:
     KDNodePtr nearest_(           //
