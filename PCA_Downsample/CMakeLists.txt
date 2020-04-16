@@ -1,6 +1,7 @@
 ADD_LIBRARY(PCA SHARED
     pca.cpp
-    normal_estimator.cpp)
+    normal_estimator.cpp
+    voxel_grid_downsampling.cpp)
 TARGET_LINK_LIBRARIES(PCA KD_tree)
 
 ADD_EXECUTABLE(pca_test pca_test.cpp)
@@ -11,3 +12,6 @@ TARGET_LINK_LIBRARIES(pcd_dimension_reduction PCA)
 
 ADD_EXECUTABLE(estimate_pts_normal estimate_pts_normal.cpp)
 TARGET_LINK_LIBRARIES(estimate_pts_normal PCA)
+
+ADD_EXECUTABLE(pcd_downsample pcd_downsample.cpp)
+TARGET_LINK_LIBRARIES(pcd_downsample PCA)
