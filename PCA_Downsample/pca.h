@@ -3,6 +3,8 @@
 #include <iostream>
 #include <Eigen/Dense>
 
+#include "utils/utils.hpp"
+
 class PCA {
 public:
     enum class eigen_vector_order : uint8_t{

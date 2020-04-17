@@ -8,8 +8,13 @@
 
 class VoxelGridDownsampling {
 public:
+    enum class SelectPointsMethod {
+        CENTROID,
+        RANDOM
+    };
+
     bool set_data(const std::string& pts_file);
-    bool downsampling(int grid_size);
+    bool downsampling(double grid_size, SelectPointsMethod select_pts_method = SelectPointsMethod::CENTROID);
     bool save_to_file(const std::string& file_name);
 
 private:

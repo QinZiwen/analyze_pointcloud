@@ -3,7 +3,6 @@
 #include <fstream>
 
 #include "PCA_Downsample/pca.h"
-#include "utils/utils.hpp"
 
 bool NormalEstimator::set_data(const std::string& pts_file) {
     std::ifstream ifs(pts_file);
@@ -20,7 +19,7 @@ bool NormalEstimator::set_data(const std::string& pts_file) {
             continue;
         }
 
-        std::vector<std::string> line_splits = regexsplit(line, ",");
+        std::vector<std::string> line_splits = Utils::regexsplit(line, ",");
         if (line_splits.size() < 3) {
             std::cerr << "[FATAL ERROR] input file format error" << std::endl;
             exit(1);

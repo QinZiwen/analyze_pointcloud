@@ -8,7 +8,9 @@
 
 #include <Eigen/Dense>
 
-unsigned long long  get_now_timestamp() {
+class Utils {
+public:
+static unsigned long long  get_now_timestamp() {
   // get timestamp
 	using namespace std::chrono;
   milliseconds ms = duration_cast< milliseconds >(
@@ -18,7 +20,7 @@ unsigned long long  get_now_timestamp() {
   return timestamp;
 }
 
-std::vector<std::string> regexsplit(const std::string& input, const std::string& reg) {
+static std::vector<std::string> regexsplit(const std::string& input, const std::string& reg) {
   std::string s(input);
   std::vector<std::string> vec;
   size_t pos = 0;
@@ -37,7 +39,7 @@ std::vector<std::string> regexsplit(const std::string& input, const std::string&
   return vec;
 }
 
-bool get_file_name_from_path(const std::string& path, std::string* file_name) {
+static bool get_file_name_from_path(const std::string& path, std::string* file_name) {
   if (path.empty() == true) {
       std::cerr << "get_file_name_from_path input path is empty" << std::endl;
       return false;
@@ -57,7 +59,7 @@ bool get_file_name_from_path(const std::string& path, std::string* file_name) {
   return true;
 }
 
-Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> read_pointcloud_from_file(const std::string& file_name) {
+static Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> read_pointcloud_from_file(const std::string& file_name) {
     std::ifstream ifs(file_name);
     if (!ifs.is_open()) {
         std::cerr << "[FATAL ERROR] can not open " << file_name << std::endl;
@@ -97,7 +99,7 @@ Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> read_pointcloud_from_file(
     return res;
 }
 
-bool save_pointcloud_to_file(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& pcd, const std::string& file_name) {
+static bool save_pointcloud_to_file(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& pcd, const std::string& file_name) {
     std::ofstream ofs(file_name);
     if (!ofs.is_open()) {
         std::cerr << "[FATAL ERROR] can not open " << file_name << std::endl;
@@ -127,3 +129,4 @@ bool save_pointcloud_to_file(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::
     ofs.close();
     return true;
 }
+};

@@ -1,4 +1,4 @@
-#include "PCA_Downsampling/voxel_grid_downsampling.h"
+#include "PCA_Downsample/voxel_grid_downsampling.h"
 
 int main(int argc, char** argv) {
     std::string pcd_file(argv[1]);
@@ -6,7 +6,7 @@ int main(int argc, char** argv) {
 
     VoxelGridDownsampling vgd;
     vgd.set_data(pcd_file);
-    vgd.downsampling(0.5);
+    vgd.downsampling(0.1, VoxelGridDownsampling::SelectPointsMethod::RANDOM);
     vgd.save_to_file(pcd_downsample);
     return 0;
 }
