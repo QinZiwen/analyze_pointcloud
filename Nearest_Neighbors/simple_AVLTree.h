@@ -20,7 +20,6 @@ class SAVLTree {
 public:
     SAVLTree();
     bool insert_from_vector(const std::vector<double>& data);
-    bool insert(double value, std::shared_ptr<SAVLNode>& root);
 
     void clear();
 
@@ -30,8 +29,11 @@ public:
     
     size_t get_size();
     size_t get_depth();
+    std::shared_ptr<SAVLNode> get_root();
 
 private:
+    bool insert(double value, std::shared_ptr<SAVLNode>& root);
+
     bool rigth_rotate(std::shared_ptr<SAVLNode>& root);
     bool left_rotate(std::shared_ptr<SAVLNode>& root);
     

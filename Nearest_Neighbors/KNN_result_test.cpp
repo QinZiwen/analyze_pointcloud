@@ -13,7 +13,7 @@ int main() {
         DistanceValue(9, 9)
     };
 
-    KNNResult knn_result(4);
+    KNNResultNumber knn_result(4);
     for (const DistanceValue dv : data) {
         knn_result.add_result(dv.distance, dv.value);
     }

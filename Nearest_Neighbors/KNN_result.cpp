@@ -1,11 +1,11 @@
 #include "Nearest_Neighbors/KNN_result.h"
 
-KNNResult::KNNResult(int capacity)
-: _capacity(capacity), _count(0), _worst_distance(std::numeric_limits<double>::max()) {
+KNNResultNumber::KNNResultNumber(int capacity)
+    : _capacity(capacity), _count(0), _worst_distance(std::numeric_limits<double>::max()) {
     _distance_value.resize(capacity);
 }
 
-bool KNNResult::add_result(double distance, double value) {
+bool KNNResultNumber::add_result(double distance, double value) {
     if (distance > _worst_distance) {
         return false;
     }
@@ -31,7 +31,7 @@ bool KNNResult::add_result(double distance, double value) {
     return true;
 }
 
-void KNNResult::print() {
+void KNNResultNumber::print() {
     std::cout << "======= KNNResult =======" << std::endl;
     for (const DistanceValue& dv : _distance_value) {
         std::cout << dv.distance << " : " << dv.value << std::endl;
@@ -39,14 +39,43 @@ void KNNResult::print() {
     std::cout << "=========================" << std::endl;
 }
 
-int KNNResult::size() {
+int KNNResultNumber::size() {
     return _count;
 }
 
-bool KNNResult::is_full() {
+bool KNNResultNumber::is_full() {
     return _count == _capacity;
 }
 
-double KNNResult::worst_distance() {
+double KNNResultNumber::worst_distance() {
     return _worst_distance;
+}
+
+KNNResultRadius::KNNResultRadius(double rad)
+    : _radius(rad)
+    {}
+
+bool KNNResultRadius::add_result(double distance, double value) {
+    if (distance > _radius) {
+        return false;
+    }
+
+    _distance_value.emplace_back(DistanceValue(distance, value));
+    return true;
+}
+
+int KNNResultRadius::size() {
+    return _distance_value.size();
+}
+
+void KNNResultRadius::print() {
+    std::cout << "======= KNNResult =======" << std::endl;
+    for (const DistanceValue& dv : _distance_value) {
+        std::cout << dv.distance << " : " << dv.value << std::endl;
+    }
+    std::cout << "=========================" << std::endl;
+}
+
+double KNNResultRadius::worst_distance() {
+    return _radius;
 }

@@ -20,9 +20,15 @@ public:
 
 class KNNResult {
 public:
-    KNNResult(int capacity);
+    virtual bool add_result(double distance, double value) = 0;
+};
+
+class KNNResultNumber : public KNNResult{
+public:
+    KNNResultNumber(int capacity);
 
     bool add_result(double distance, double value);
+
     int size();
     bool is_full();
     double worst_distance();
@@ -32,5 +38,19 @@ private:
     int _capacity;
     int _count;
     double _worst_distance;
+    std::vector<DistanceValue> _distance_value;
+};
+
+class KNNResultRadius : public KNNResult {
+public:
+    KNNResultRadius(double rad);
+    bool add_result(double distance, double value);
+
+    int size();
+    void print();
+    double worst_distance();
+
+private:
+    double _radius;
     std::vector<DistanceValue> _distance_value;
 };

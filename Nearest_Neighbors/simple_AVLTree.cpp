@@ -165,3 +165,7 @@ size_t SAVLTree::get_depth(const std::shared_ptr<SAVLNode>& root) {
         return std::max(l_depth, r_depth) + 1;
     }
 }
+
+std::shared_ptr<SAVLNode> SAVLTree::get_root() {
+    return root;
+}
