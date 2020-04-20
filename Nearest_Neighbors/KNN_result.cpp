@@ -32,11 +32,11 @@ bool KNNResultNumber::add_result(double distance, double value) {
 }
 
 void KNNResultNumber::print() {
-    std::cout << "======= KNNResult =======" << std::endl;
+    std::cout << "======= KNNResultNumber =======" << std::endl;
     for (const DistanceValue& dv : _distance_value) {
         std::cout << dv.distance << " : " << dv.value << std::endl;
     }
-    std::cout << "=========================" << std::endl;
+    std::cout << "===============================" << std::endl;
 }
 
 int KNNResultNumber::size() {
@@ -52,8 +52,9 @@ double KNNResultNumber::worst_distance() {
 }
 
 KNNResultRadius::KNNResultRadius(double rad)
-    : _radius(rad)
-    {}
+    : _radius(rad) {
+    _distance_value.clear();
+}
 
 bool KNNResultRadius::add_result(double distance, double value) {
     if (distance > _radius) {
@@ -69,11 +70,11 @@ int KNNResultRadius::size() {
 }
 
 void KNNResultRadius::print() {
-    std::cout << "======= KNNResult =======" << std::endl;
+    std::cout << "======= KNNResultRadius =======" << std::endl;
     for (const DistanceValue& dv : _distance_value) {
         std::cout << dv.distance << " : " << dv.value << std::endl;
     }
-    std::cout << "=========================" << std::endl;
+    std::cout << "===============================" << std::endl;
 }
 
 double KNNResultRadius::worst_distance() {
