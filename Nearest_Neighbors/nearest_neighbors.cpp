@@ -94,6 +94,12 @@ bool KDTreeAVLNearestNeighbors::KNN_search_number(
     return KNN_search_number(_kd_tree.get_root(), key, knn_result);
 }
 
+bool KDTreeAVLNearestNeighbors::KNN_search_radius(
+        const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& key,
+        KNNResultRadius& knn_result) {
+    return KNN_search_radius(_kd_tree.get_root(), key, knn_result);
+}
+
 bool KDTreeAVLNearestNeighbors::KNN_search_number(
     const std::shared_ptr<AAPCD::KDTreeNode>& root,
     const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& key,
@@ -120,6 +126,37 @@ bool KDTreeAVLNearestNeighbors::KNN_search_number(
          KNN_search_number(root->right, key, knn_result);
         if (abs(key(root->axis, 0) - root->key) < knn_result.worst_distance()) {
             KNN_search_number(root->left, key, knn_result);
+        }
+    }
+    return true;
+}
+
+bool KDTreeAVLNearestNeighbors::KNN_search_radius(
+    const std::shared_ptr<AAPCD::KDTreeNode>& root,
+    const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& key,
+    KNNResultRadius& knn_result) {
+    if (root == nullptr) {
+        return false;
+    }
+
+    if (root->is_leaf) {
+        for (size_t i = 0; i < root->value_indices.size(); ++i) {
+            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> vdiff = key.col(0) - _input_matrix.col(root->value_indices[i]);
+            double diff = vdiff.norm();
+            knn_result.add_result(diff, root->value_indices[i]);
+        }
+        return true;
+    }
+
+    if (key(root->axis, 0) <= root->key) {
+        KNN_search_radius(root->left, key, knn_result);
+        if (abs(key(root->axis, 0) - root->key) < knn_result.worst_distance()) {
+            KNN_search_radius(root->right, key, knn_result);
+        }
+    } else {
+         KNN_search_radius(root->right, key, knn_result);
+        if (abs(key(root->axis, 0) - root->key) < knn_result.worst_distance()) {
+            KNN_search_radius(root->left, key, knn_result);
         }
     }
     return true;

@@ -26,14 +26,20 @@ public:
         const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& key,
         KNNResultNumber& knn_result);
 
-    bool KNN_search_radius(double key, KNNResultRadius& knn_result);
+    bool KNN_search_radius(
+        const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& key,
+        KNNResultRadius& knn_result);
 
 private:
     bool KNN_search_number(
         const std::shared_ptr<AAPCD::KDTreeNode>& root,
         const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& key,
         KNNResultNumber& knn_result);
-    bool KNN_search_radius(const std::shared_ptr<AAPCD::KDTreeNode>& kd_tree, double key, KNNResultRadius& knn_result);
+
+    bool KNN_search_radius(
+        const std::shared_ptr<AAPCD::KDTreeNode>& root,
+        const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& key,
+        KNNResultRadius& knn_result);
 
 private:
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> _input_matrix;
