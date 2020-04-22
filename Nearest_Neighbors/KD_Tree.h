@@ -30,6 +30,8 @@ public:
     void input(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& input_matrix);
     bool create_kd_tree(int leaf_size);
 
+    std::shared_ptr<KDTreeNode> get_root();
+
 private:
     bool create_kd_tree_recursive(
         std::shared_ptr<KDTreeNode>& root,
@@ -42,9 +44,10 @@ private:
         const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& values, 
         const std::vector<int> value_indices, 
         int axis,
-        int& median_key,
+        double& median_key,
         std::vector<int>& left_value_indices,
-        std::vector<int>& right_value_indices);
+        std::vector<int>& right_value_indices,
+        std::vector<int>& median_value_indices);
     
     int get_next_axis(int axis, int dim);
 
