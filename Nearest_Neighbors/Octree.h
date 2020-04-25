@@ -32,8 +32,19 @@ typedef struct Octant {
 class Octree {
 public:
     void input(const Eigen::Matrix<double, 3, Eigen::Dynamic>& input_matrix);
-    bool build(double leaf_size, double min_length, bool verbose = false);
+    bool build(int leaf_size, double min_length, bool verbose = false);
 
+    static bool inside(
+        const Eigen::Vector3d& query,
+        const std::shared_ptr<Octant>& octant,
+        double radius);
+    
+    static bool overlap(
+        const Eigen::Vector3d& query,
+        const std::shared_ptr<Octant>& octant,
+        double radius);
+
+    std::shared_ptr<Octant> get_root();
 private:
     bool octree_recursive_build(
         std::shared_ptr<Octant>& root,
@@ -45,7 +56,7 @@ private:
 private:
     Eigen::Matrix<double, 3, Eigen::Dynamic> _input_matrix;   // column is feature
     std::shared_ptr<Octant> _root;
-    double _leaf_size;
+    int _leaf_size;
     double _min_extent;
 
     bool _verbose;
