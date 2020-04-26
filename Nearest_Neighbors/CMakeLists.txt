@@ -19,3 +19,6 @@ TARGET_LINK_LIBRARIES(KD_Tree_test Nearest_Neighbors)
 
 ADD_EXECUTABLE(Octree_test Octree_test.cpp)
 TARGET_LINK_LIBRARIES(Octree_test Nearest_Neighbors)
+
+ADD_EXECUTABLE(nearest_neighbors_homework nearest_neighbors_homework.cpp)
+TARGET_LINK_LIBRARIES(nearest_neighbors_homework Nearest_Neighbors KD_tree)

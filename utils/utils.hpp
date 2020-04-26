@@ -129,4 +129,35 @@ static bool save_pointcloud_to_file(const Eigen::Matrix<double, Eigen::Dynamic, 
     ofs.close();
     return true;
 }
+
+static bool read_point_cloud_from_bin(
+    const std::string bin_file,
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& pcd) {
+    std::ifstream point_stream;
+    point_stream.open(bin_file.c_str(), std::ios::binary);
+    if (!point_stream.good()) {
+        std::cerr << "[FATAL ERROR] can not open " << bin_file << std::endl;
+        return false;
+    }
+
+    point_stream.seekg(0, point_stream.end);
+    int64_t current_index = point_stream.tellg();
+    point_stream.seekg(0, std::ios::beg);
+
+    int64_t size = current_index * sizeof(char) / sizeof(float);
+    float* buffer = new float[size];
+    point_stream.read(reinterpret_cast<char*>(buffer), current_index);
+
+    pcd.resize(3, size / 3);
+    for (int i = 0; i < size; i += 3) {
+        pcd(0, i / 3) = double(buffer[i]);      // x
+        pcd(1, i / 3) = double(buffer[i + 1]);  // y
+        pcd(2, i / 3) = double(buffer[i + 2]);  // z
+    }
+    delete[] buffer;
+    point_stream.close();
+
+    std::cout << "read " << pcd.cols() << " points" << std::endl;
+    return true;
+}
 };

@@ -27,6 +27,7 @@ typedef struct KDTreeNode {
 
 class KDTree {
 public:
+    KDTree(bool verbose = false) : _verbose(verbose) {}
     void input(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& input_matrix);
     bool create_kd_tree(int leaf_size);
 
@@ -54,6 +55,7 @@ private:
 private:
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> _input_matrix;   // column is feature
     std::shared_ptr<KDTreeNode> _root;
+    bool _verbose;
 };
 
 }  // namespace AAPCD

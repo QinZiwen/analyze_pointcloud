@@ -10,7 +10,9 @@ bool KDTree::create_kd_tree(int leaf_size) {
     std::vector<int> value_indices;
     for (int i = 0; i < _input_matrix.cols(); ++i) {
         value_indices.emplace_back(i);
-        std::cout << "input_data: " << _input_matrix.col(i).transpose() << std::endl;
+        if (_verbose) {
+            std::cout << "input_data: " << _input_matrix.col(i).transpose() << std::endl;
+        }
     }
     return create_kd_tree_recursive(_root, _input_matrix, value_indices, 0, leaf_size);
 }
@@ -22,17 +24,21 @@ bool KDTree::create_kd_tree_recursive(
     int axis,
     int leaf_size) {
     
-    std::cout << "axis: " << axis << std::endl;
+    if (_verbose) {
+        std::cout << "axis: " << axis << std::endl;
+    }
     if (root == nullptr) {
         root.reset(new KDTreeNode(axis));
     }
 
-    std::cout << "value_indices.size: " << value_indices.size() << std::endl;
-    std::cout << "value_indices: ";
-    for (size_t i = 0; i < value_indices.size(); ++i) {
-        std::cout << value_indices[i] << " ";
+    if (_verbose) {
+        std::cout << "value_indices.size: " << value_indices.size() << std::endl;
+        std::cout << "value_indices: ";
+        for (size_t i = 0; i < value_indices.size(); ++i) {
+            std::cout << value_indices[i] << " ";
+        }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
 
     if (value_indices.size() > leaf_size) {
         // get median
@@ -42,9 +48,11 @@ bool KDTree::create_kd_tree_recursive(
         get_median_key_and_left_right_value_indices_maxmin(
             values, value_indices, axis, median_key, left_value_indices, right_value_indices, median_value_indices);
 
-        std::cout << "median_key: " << median_key << std::endl;
-        std::cout << "left_value_indices.size: " << left_value_indices.size() << std::endl;
-        std::cout << "right_value_indices.size: " << right_value_indices.size() << std::endl;
+        if (_verbose) {
+            std::cout << "median_key: " << median_key << std::endl;
+            std::cout << "left_value_indices.size: " << left_value_indices.size() << std::endl;
+            std::cout << "right_value_indices.size: " << right_value_indices.size() << std::endl;
+        }
 
         int next_axis = get_next_axis(axis, values.rows());
         root->is_leaf = false;
@@ -57,11 +65,13 @@ bool KDTree::create_kd_tree_recursive(
         root->value_indices = value_indices;
 
         // print value_indices
-        std::cout << "leaf value_indices: ";
-        for (size_t i = 0; i < value_indices.size(); ++i) {
-            std::cout << value_indices[i] << " ";
+        if (_verbose) {
+            std::cout << "leaf value_indices: ";
+            for (size_t i = 0; i < value_indices.size(); ++i) {
+                std::cout << value_indices[i] << " ";
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
     return true;
 }
@@ -83,7 +93,10 @@ bool KDTree::get_median_key_and_left_right_value_indices_maxmin(
 
     max = tmp_values.maxCoeff();
     min = tmp_values.minCoeff();
-    std::cout << "min: " << min << ", max: " <<  max << std::endl;
+    if (_verbose) {
+        std::cout << "min: " << min << ", max: " <<  max << std::endl;
+    }
+
     if (max > min) {
         median_key = min + (max - min) / 2;
         for (size_t i = 0; i < value_indices.size(); ++i) {
