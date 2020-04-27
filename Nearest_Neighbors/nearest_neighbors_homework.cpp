@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     gettimeofday(&process_start, NULL);
     kd_tree_nn.KNN_search_radius(key, kd_tree_knn_result_rad);
     // kd_tree_knn_result_rad.print();
-    std::cout << "my kd-tree find size: " << BF_knn_result.size() << std::endl;
+    std::cout << "my kd-tree find size: " << kd_tree_knn_result_rad.size() << std::endl;
     gettimeofday(&process_end, NULL);
     process_timer = process_end.tv_sec - process_start.tv_sec + (float)(process_end.tv_usec - process_start.tv_usec)/1000000; 
     std::cout << "my kd-tree time: " << process_timer << " s" << std::endl;
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     gettimeofday(&process_start, NULL);
     octree_nn.KNN_search_radius(key, octree_knn_result_rad);
     // octree_knn_result_rad.print();
-    std::cout << "my octree find size: " << BF_knn_result.size() << std::endl;
+    std::cout << "my octree find size: " << octree_knn_result_rad.size() << std::endl;
     gettimeofday(&process_end, NULL);
     process_timer = process_end.tv_sec - process_start.tv_sec + (float)(process_end.tv_usec - process_start.tv_usec)/1000000; 
     std::cout << "my octree time: " << process_timer << " s" << std::endl;
