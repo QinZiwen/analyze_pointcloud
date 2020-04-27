@@ -41,7 +41,6 @@ int main(int argc, char** argv) {
     // third kd-tree
     // transformat data
     pointVec points;
-    gettimeofday(&process_start, NULL);
     for (size_t i = 0; i < pcd.cols(); ++i) {
         const auto& tmp = pcd.col(i);
         point_t pt = {tmp(0, 0), tmp(1, 0), tmp(2, 0)};
@@ -52,6 +51,7 @@ int main(int argc, char** argv) {
     point_t pt_key = {key(0, 0), key(1, 0), key(2, 0)};
 
     KDTree tree(points);
+    gettimeofday(&process_start, NULL);
     auto res2 = tree.neighborhood_points(pt_key, radius);
     std::cout << "third kd-tree find size: " << res2.size() << std::endl;
     gettimeofday(&process_end, NULL);
@@ -59,11 +59,11 @@ int main(int argc, char** argv) {
     std::cout << "third kd-tree time: " << process_timer << " s" << std::endl;
 
     // my kd-tree
-    gettimeofday(&process_start, NULL);
     KDTreeAVLNearestNeighbors kd_tree_nn;
     KNNResultRadius kd_tree_knn_result_rad(radius);
     kd_tree_nn.set_data(pcd, 200);
 
+    gettimeofday(&process_start, NULL);
     kd_tree_nn.KNN_search_radius(key, kd_tree_knn_result_rad);
     // kd_tree_knn_result_rad.print();
     std::cout << "my kd-tree find size: " << BF_knn_result.size() << std::endl;
@@ -72,11 +72,11 @@ int main(int argc, char** argv) {
     std::cout << "my kd-tree time: " << process_timer << " s" << std::endl;
 
     // my octree
-    gettimeofday(&process_start, NULL);
     OctreeAVLNearestNeighbors octree_nn;
     octree_nn.set_data(pcd, 200, 10);
 
     KNNResultRadius octree_knn_result_rad(radius);
+    gettimeofday(&process_start, NULL);
     octree_nn.KNN_search_radius(key, octree_knn_result_rad);
     // octree_knn_result_rad.print();
     std::cout << "my octree find size: " << BF_knn_result.size() << std::endl;
