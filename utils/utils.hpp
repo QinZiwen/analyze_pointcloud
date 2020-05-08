@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <fstream>
+#include <dirent.h>
 
 #include <Eigen/Dense>
 
@@ -57,6 +58,65 @@ static bool get_file_name_from_path(const std::string& path, std::string* file_n
       *file_name = tmp_path;
   }
   return true;
+}
+
+/**
+* Get all file names under the specified path
+* type: if type == 8, the function will return all file names; if type == 4, the function will return all directory names
+*/
+static bool get_file_names_from_path(const std::string& path, std::vector<std::string>* file_name, const int& type) {
+    if (file_name == nullptr) {
+        std::cerr << "file_name is nullptr" << std::endl;
+        return false;
+    }
+
+    DIR *dp;
+    struct dirent *dirp;
+
+    if ((dp = opendir(path.c_str())) == nullptr) {
+        std::cerr << "Can not open " << path << std::endl;
+        return false;
+    }
+
+    while ((dirp = readdir(dp)) != nullptr) {
+        if (!strcmp(dirp->d_name, ".") || !strcmp(dirp->d_name, "..")) {
+            continue;
+        }
+
+        if (type == static_cast<int>(dirp->d_type)) {
+            file_name->emplace_back(dirp->d_name);
+        }
+    }
+    closedir(dp);
+
+    return true;
+}
+
+static bool get_absolute_file_name_frome_path(const std::string& path, std::vector<std::string>& names) {
+	std::vector<std::string> file_name;
+	if (!get_file_names_from_path(path, &file_name, 8)) {
+		std::cerr << "run get_file_names_from_path failure" << std::endl;
+		return false;
+	}
+
+	for (const auto& n : file_name) {
+		names.emplace_back(path + "/" + n);
+	}
+    return true;
+}
+
+static bool run_command(const std::string& command) {
+	if (command.empty()) {
+		std::cerr << "empty command!" << std::endl;
+		return false;
+	}
+	int com_res = std::system(command.c_str());
+	std::cout << "run " + command + " status: " << com_res << std::endl;
+	if (com_res != 0) {
+		std::cerr << "run " + command + " failed" << std::endl;
+		return false;
+	}
+	return true;
 }
 
 static Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> read_pointcloud_from_file(const std::string& file_name) {
