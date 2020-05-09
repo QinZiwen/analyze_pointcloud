@@ -88,7 +88,7 @@ bool GMM::E_step() {
 
         for (size_t k = 0; k < _Z_nk.cols(); ++k) {
             double prob = _clusters[k].pi * _clusters[k].probability(_data.col(n));
-            _Z_nk(n, k) = prob / (total_prob + 0.00001);
+            _Z_nk(n, k) = prob / total_prob;
         }
     }
     return true;
@@ -118,6 +118,11 @@ bool GMM::M_step() {
             _clusters[k].mu = new_mu;
             _clusters[k].sigma = new_sigma;
             _clusters[k].pi = new_pi;
+        } else {
+            srand((int)time(0));
+            int idx = rand() % _data.cols();
+            _clusters[k].mu = _data.col(idx);
+            _clusters[k].sigma = Eigen::MatrixXd::Identity(_data.rows(), _data.rows());
         }
     }
     return true;
@@ -153,6 +158,27 @@ void GMM::print_Z_nk() {
         std::cout << std::endl;
     }
     std::cout << "===================" << std::endl;
+}
+
+bool GMM::save_cluster_data_to_file(const std::string& file_name) {
+    std::ofstream ofs(file_name);
+    if (!ofs.is_open()) {
+        std::cerr << "can not open " << file_name << std::endl;
+        return false;
+    }
+
+    for (size_t n = 0; n < _data.cols(); ++n) {
+        ofs << _data.col(n).transpose();
+
+        for (size_t k = 0; k < _Z_nk.cols(); ++k) {
+            ofs << " " << _Z_nk(n, k);
+        }
+        ofs << std::endl;
+    }
+
+    ofs.close();
+    std::cout << "save result to " << file_name << std::endl;
+    return true;
 }
 
 }  // namespace AAPCD

@@ -1,3 +1,4 @@
+#coding: UTF-8
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -34,6 +35,7 @@ for n in names:
     plt.title(n, size=18)
     plt.scatter(plot_data[0], plot_data[1], s=10, color="#377eb8")
     plt.scatter(plot_data[2], plot_data[3], s=10, color="#ff7f00")
+    plt.scatter(plot_data[4], plot_data[5], s=10, color="#4daf4a")
     plt.xticks(())
     plt.yticks(())
     plot_num += 1
