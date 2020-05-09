@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <limits>  
 
 #include <Eigen/Dense>
 #include <Eigen/Core>
@@ -19,7 +20,7 @@ typedef struct Cluster {
 
     Cluster(unsigned int id_)
     : id(id_) {
-        delta = 0;
+        delta = std::numeric_limits<double>::max();
         data_index_size = 0;
     }
 } Cluster;
