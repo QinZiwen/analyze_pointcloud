@@ -30,6 +30,9 @@ public:
     void input(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& input_matrix);
     bool compute(int k, int max_step = 100, double min_update_size = 0.01);
     std::vector<Cluster> get_clusters();
+    
+    // 将聚类的结果保存到文件，每一行为一个类的所有数据
+    bool save_cluster_data_to_file(const std::string& file_name);
 
 private:
     bool init_cluster(int k);

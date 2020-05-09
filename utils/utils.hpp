@@ -6,6 +6,7 @@
 #include <chrono>
 #include <fstream>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #include <Eigen/Dense>
 
@@ -220,4 +221,52 @@ static bool read_point_cloud_from_bin(
     std::cout << "read " << pcd.cols() << " points" << std::endl;
     return true;
 }
+
+static bool path_exists(const std::string& path) {
+  struct stat file_status;
+  if (stat(path.c_str(), &file_status) == 0 &&
+      (file_status.st_mode & S_IFDIR)) {
+    return true;
+  }
+  return false;
+}
+
+static bool create_path(const std::string& path_to_create_input) {
+  constexpr mode_t kMode = 0777;
+
+  if (path_to_create_input.empty()) {
+    std::cout << "\033[31mCannot create empty path!\033[0m";
+    return false;
+  } 
+
+  // Append slash if necessary to make sure that stepping through the folders
+  // works.
+  std::string path_to_create = path_to_create_input;
+  if (path_to_create.back() != '/') {
+    path_to_create += '/';
+  }
+
+  // Loop over the path and create one folder after another.
+  size_t current_position = 0u;
+  size_t previous_position = 0u;
+  std::string current_directory;
+  while ((current_position = path_to_create.find_first_of(
+              '/', previous_position)) != std::string::npos) {
+    current_directory = path_to_create.substr(0, current_position++);
+    previous_position = current_position;
+
+    if (current_directory == "." || current_directory.empty()) {
+      continue;
+    }
+
+    int make_dir_status = 0;
+    if ((make_dir_status = mkdir(current_directory.c_str(), kMode)) &&
+        errno != EEXIST) {
+      std::cout << "\033[31mUnable to make path! Error: " << strerror(errno) << "\033[0m";
+      return make_dir_status == 0;
+    }
+  }
+  return true;
+}
+
 };

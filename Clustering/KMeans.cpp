@@ -161,4 +161,23 @@ void KMeans::print_clusters() {
     std::cout << "====================" << std::endl;
 }
 
+bool KMeans::save_cluster_data_to_file(const std::string& file_name) {
+    std::ofstream ofs(file_name);
+    if (!ofs.is_open()) {
+        std::cerr << "can not open " << file_name << std::endl;
+        return false;
+    }
+
+    for (const auto& c : _clusters) {
+        for (size_t i = 0; i < c.data_index_size; ++i) {
+            ofs << _data(0, c.data_index[i]) << " " << _data(1, c.data_index[i]) << " ";
+        }
+        ofs << std::endl;
+    }
+
+    ofs.close();
+    std::cout << "save result to " << file_name << std::endl;
+    return true;
+}
+
 }  // namespace AAPCD
