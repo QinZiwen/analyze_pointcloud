@@ -34,14 +34,13 @@ public:
     
     // 将聚类的结果保存到文件，每一行为一个类的所有数据
     bool save_cluster_data_to_file(const std::string& file_name);
+    void print_clusters();
 
 private:
     bool init_cluster(int k);
     bool E_step();
     bool M_step();
     double get_update_size();
-
-    void print_clusters();
 
 private:
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> _data;
