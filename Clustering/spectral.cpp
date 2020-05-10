@@ -65,7 +65,7 @@ bool Spectral::build_adjacency_matrix_full_connect() {
         const Eigen::VectorXd d1 = _data.col(i);
         for (size_t j = 0; j < _data.cols(); ++j) {
             const Eigen::VectorXd d2 = _data.col(j);
-            _W(i, j) = (d1 - d2).norm();
+            _W(i, j) = -1 * (d1 - d2).norm();
         }
     }
     return true;
