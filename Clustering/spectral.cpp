@@ -61,11 +61,23 @@ bool Spectral::build_adjacency_matrix(ADJACENCY_METHOD adjacency) {
 
 bool Spectral::build_adjacency_matrix_full_connect() {
     _W.resize(_data.cols(), _data.cols());
+
+    double max_weight = 0.0;
     for (size_t i = 0; i < _data.cols(); ++i) {
         const Eigen::VectorXd d1 = _data.col(i);
         for (size_t j = 0; j < _data.cols(); ++j) {
             const Eigen::VectorXd d2 = _data.col(j);
-            _W(i, j) = -1 * (d1 - d2).norm();
+            if ((d1 - d2).norm() > max_weight) {
+                max_weight = (d1 - d2).norm();
+            }
+        }
+    }
+
+    for (size_t i = 0; i < _data.cols(); ++i) {
+        const Eigen::VectorXd d1 = _data.col(i);
+        for (size_t j = 0; j < _data.cols(); ++j) {
+            const Eigen::VectorXd d2 = _data.col(j);
+            _W(i, j) = max_weight - (d1 - d2).norm();
         }
     }
     return true;
