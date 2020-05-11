@@ -2,6 +2,7 @@
 
 #include "utils/utils.hpp"
 #include "Clustering/KMeans.h"
+#include "Nearest_Neighbors/nearest_neighbors.h"
 
 #include <cmath>
 #include <limits>
@@ -23,14 +24,16 @@ public:
     };
 
     void input(const Eigen::MatrixXd& input_matrix);
-    bool compute(int k = 0, int max_step = 100, double min_update_size = 0.01);
+    bool compute(int k = 0, int max_step = 100, double min_update_size = 0.01, ADJACENCY_METHOD adjacency = ADJACENCY_METHOD::NEAREST_NEIGHBOR);
 
     // 将聚类的结果保存到文件，每一行为一个类的所有数据
     bool save_cluster_data_to_file(const std::string& file_name);
+    void print_clusters();
 
 private:
     bool build_adjacency_matrix(ADJACENCY_METHOD adjacency = ADJACENCY_METHOD::FULL_CONNECT);
     bool build_adjacency_matrix_full_connect();
+    bool build_adjacency_matrix_nearest_neighbor();
 
     bool build_Laplacian_matrix(NORMALIZED_LAPLACIAN normalized_laplacian = NORMALIZED_LAPLACIAN::NONE);
     bool build_Laplacian_matrix_none();

@@ -39,6 +39,10 @@ void KNNResultNumber::print() {
     std::cout << "===============================" << std::endl;
 }
 
+std::vector<DistanceValue> KNNResultNumber::get_distance_value() {
+    return _distance_value;
+}
+
 int KNNResultNumber::size() {
     return _count;
 }

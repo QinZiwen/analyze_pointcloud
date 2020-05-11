@@ -5,9 +5,9 @@ namespace AAPCD {
 void Spectral::input(const Eigen::MatrixXd& input_matrix) {
     _data = input_matrix;
 }
-bool Spectral::compute(int k, int max_step, double min_update_size) {
+bool Spectral::compute(int k, int max_step, double min_update_size, ADJACENCY_METHOD adjacency) {
     // build adjacency matrix
-    if (!build_adjacency_matrix()) {
+    if (!build_adjacency_matrix(adjacency)) {
         std::cerr << "run build_adjacency_matrix failure" << std::endl;
         return false;
     } else {
@@ -47,11 +47,13 @@ bool Spectral::compute(int k, int max_step, double min_update_size) {
 
 bool Spectral::build_adjacency_matrix(ADJACENCY_METHOD adjacency) {
     if (adjacency == ADJACENCY_METHOD::FULL_CONNECT) {
+        std::cout << "build_adjacency_matrix: FULL_CONNECT" << std::endl;
         return build_adjacency_matrix_full_connect();
     } else if (adjacency == ADJACENCY_METHOD::NEAREST_NEIGHBOR) {
-        ;
+        std::cout << "build_adjacency_matrix: NEAREST_NEIGHBOR" << std::endl;
+        return build_adjacency_matrix_nearest_neighbor();
     } else if (adjacency == ADJACENCY_METHOD::K_NEIGHBORHOOD_GRAPH) {
-        ;
+        std::cout << "build_adjacency_matrix: K_NEIGHBORHOOD_GRAPH" << std::endl;
     } else {
         std::cerr << "adjacency method invalid" << std::endl;
         return false;
@@ -78,6 +80,39 @@ bool Spectral::build_adjacency_matrix_full_connect() {
         for (size_t j = 0; j < _data.cols(); ++j) {
             const Eigen::VectorXd d2 = _data.col(j);
             _W(i, j) = max_weight - (d1 - d2).norm();
+        }
+    }
+    return true;
+}
+
+bool Spectral::build_adjacency_matrix_nearest_neighbor() {
+    int leaf_size = _data.cols() > 10 ? _data.cols() * 0.1 : _data.cols() * 0.2;
+    int knn_size = _data.cols() > 10 ? _data.cols() * 0.25 : _data.cols() * 0.5;
+
+    double max_weight = 0.0;
+    for (size_t i = 0; i < _data.cols(); ++i) {
+        const Eigen::VectorXd d1 = _data.col(i);
+        for (size_t j = 0; j < _data.cols(); ++j) {
+            const Eigen::VectorXd d2 = _data.col(j);
+            if ((d1 - d2).norm() > max_weight) {
+                max_weight = (d1 - d2).norm();
+            }
+        }
+    }
+
+    _W.resize(_data.cols(), _data.cols());
+
+    KDTreeAVLNearestNeighbors nn;
+    nn.set_data(_data, leaf_size);
+
+    for (size_t i = 0; i < _data.cols(); ++i) {
+        const Eigen::VectorXd d1 = _data.col(i);
+        KNNResultNumber knn_result(knn_size);
+        nn.KNN_search_number(d1, knn_result);
+        std::vector<DistanceValue> dv = knn_result.get_distance_value();
+        for (size_t id = 0; id < dv.size(); ++id) {
+            const Eigen::VectorXd d2 = _data.col(dv[id].value);
+            _W(i, dv[id].value) = max_weight - (d1 - d2).norm();
         }
     }
     return true;
@@ -164,6 +199,19 @@ bool Spectral::save_cluster_data_to_file(const std::string& file_name) {
     ofs.close();
     std::cout << "save result to " << file_name << std::endl;
     return false;
+}
+
+void Spectral::print_clusters() {
+    std::cout << "===== spectral clusters =====" << std::endl;
+    for (const auto& c : _clusters) {
+        std::cout << "cluster " << c.id << ", " << c.center.transpose() << ", " << c.data_index_size << std::endl;
+        std::cout << "data index: ";
+        for (int i = 0; i < c.data_index_size; ++i) {
+            std::cout << c.data_index[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "====================" << std::endl;
 }
 
 }  // namespace AAPCD

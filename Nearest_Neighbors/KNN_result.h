@@ -33,6 +33,7 @@ public:
     bool is_full();
     double worst_distance();
     void print();
+    std::vector<DistanceValue> get_distance_value();
 
 private:
     int _capacity;
