@@ -28,6 +28,8 @@ no_structure = np.random.rand(n_samples, 2), None
 
 ## test show
 output_path = sys.argv[1]
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
 
 # X, y = noisy_circles
 # print("x, ", X)
