@@ -68,6 +68,10 @@ bool Spectral::build_adjacency_matrix_full_connect() {
     for (size_t i = 0; i < _data.cols(); ++i) {
         const Eigen::VectorXd d1 = _data.col(i);
         for (size_t j = 0; j < _data.cols(); ++j) {
+            if (i == j) {
+                continue;
+            }
+
             const Eigen::VectorXd d2 = _data.col(j);
             if ((d1 - d2).norm() > max_weight) {
                 max_weight = (d1 - d2).norm();
@@ -78,6 +82,9 @@ bool Spectral::build_adjacency_matrix_full_connect() {
     for (size_t i = 0; i < _data.cols(); ++i) {
         const Eigen::VectorXd d1 = _data.col(i);
         for (size_t j = 0; j < _data.cols(); ++j) {
+            if (i == j) {
+                _W(i, j) = 0;
+            }
             const Eigen::VectorXd d2 = _data.col(j);
             _W(i, j) = max_weight - (d1 - d2).norm();
         }
@@ -99,6 +106,7 @@ bool Spectral::build_adjacency_matrix_nearest_neighbor() {
             }
         }
     }
+    std::cout << "max_weight: " << max_weight << std::endl;
 
     _W.resize(_data.cols(), _data.cols());
 
@@ -111,10 +119,24 @@ bool Spectral::build_adjacency_matrix_nearest_neighbor() {
         nn.KNN_search_number(d1, knn_result);
         std::vector<DistanceValue> dv = knn_result.get_distance_value();
         for (size_t id = 0; id < dv.size(); ++id) {
+            if (i == dv[id].value) {
+                _W(i, dv[id].value) = 0;
+            }
+
             const Eigen::VectorXd d2 = _data.col(dv[id].value);
             _W(i, dv[id].value) = max_weight - (d1 - d2).norm();
         }
     }
+
+    // std::cout << "weight matrix:\n" << _W << std::endl;
+    // std::ofstream wofs("./weight.txt");
+    // for (size_t i = 0; i < _data.cols(); ++i) {
+    //     for (size_t j = 0; j < _data.cols(); ++j) {
+    //         wofs << _W(i, j) << " ";
+    //     }
+    //     wofs << std::endl;
+    // }
+    // wofs.close();
     return true;
 }
 

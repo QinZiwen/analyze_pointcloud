@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
             gettimeofday(&process_start, NULL);
             AAPCD::Spectral spectral;
             spectral.input(data);
-            spectral.compute(3, 100, 0.001);
+            spectral.compute(3, 100, 0.001, AAPCD::Spectral::ADJACENCY_METHOD::NEAREST_NEIGHBOR);
             gettimeofday(&process_end, NULL);
             process_timer = process_end.tv_sec - process_start.tv_sec + (float)(process_end.tv_usec - process_start.tv_usec)/1000000; 
             std::cout << "Spectral time: " << process_timer << " s" << std::endl;
