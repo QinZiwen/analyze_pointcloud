@@ -24,7 +24,11 @@ public:
     };
 
     void input(const Eigen::MatrixXd& input_matrix);
-    bool compute(int k = 0, int max_step = 100, double min_update_size = 0.01, ADJACENCY_METHOD adjacency = ADJACENCY_METHOD::NEAREST_NEIGHBOR);
+    bool compute(int k = 0,
+                 int max_step = 100,
+                 double min_update_size = 0.01,
+                 ADJACENCY_METHOD adjacency = ADJACENCY_METHOD::NEAREST_NEIGHBOR,
+                 NORMALIZED_LAPLACIAN normalized_laplacian = NORMALIZED_LAPLACIAN::RW);
 
     // 将聚类的结果保存到文件，每一行为一个类的所有数据
     bool save_cluster_data_to_file(const std::string& file_name);
@@ -37,6 +41,7 @@ private:
 
     bool build_Laplacian_matrix(NORMALIZED_LAPLACIAN normalized_laplacian = NORMALIZED_LAPLACIAN::NONE);
     bool build_Laplacian_matrix_none();
+    bool build_Laplacian_matrix_RW();
 
     // V \in R^{n*k}, every column is smallest k eigenvectors of Laplacian matrix
     bool build_V_matrix(int k = 0);

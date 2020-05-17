@@ -5,7 +5,10 @@ namespace AAPCD {
 void Spectral::input(const Eigen::MatrixXd& input_matrix) {
     _data = input_matrix;
 }
-bool Spectral::compute(int k, int max_step, double min_update_size, ADJACENCY_METHOD adjacency) {
+bool Spectral::compute(int k, int max_step,
+    double min_update_size,
+    ADJACENCY_METHOD adjacency,
+    NORMALIZED_LAPLACIAN normalized_laplacian) {
     // build adjacency matrix
     if (!build_adjacency_matrix(adjacency)) {
         std::cerr << "run build_adjacency_matrix failure" << std::endl;
@@ -15,7 +18,7 @@ bool Spectral::compute(int k, int max_step, double min_update_size, ADJACENCY_ME
     }
 
     // compute Laplacian L
-    if (!build_Laplacian_matrix()) {
+    if (!build_Laplacian_matrix(normalized_laplacian)) {
         std::cerr << "run build_Laplacian_matrix failure" << std::endl;
         return false;
     } else {
@@ -84,6 +87,7 @@ bool Spectral::build_adjacency_matrix_full_connect() {
         for (size_t j = 0; j < _data.cols(); ++j) {
             if (i == j) {
                 _W(i, j) = 0;
+                continue;
             }
             const Eigen::VectorXd d2 = _data.col(j);
             _W(i, j) = max_weight - (d1 - d2).norm();
@@ -93,8 +97,8 @@ bool Spectral::build_adjacency_matrix_full_connect() {
 }
 
 bool Spectral::build_adjacency_matrix_nearest_neighbor() {
-    int leaf_size = _data.cols() > 10 ? _data.cols() * 0.1 : _data.cols() * 0.2;
-    int knn_size = _data.cols() > 10 ? _data.cols() * 0.25 : _data.cols() * 0.5;
+    int leaf_size = int(_data.cols() > 10 ? _data.cols() * 0.1 : 2);
+    int knn_size = int(_data.cols() > 10 ? _data.cols() * 0.25 : 4);
 
     double max_weight = 0.0;
     for (size_t i = 0; i < _data.cols(); ++i) {
@@ -107,6 +111,8 @@ bool Spectral::build_adjacency_matrix_nearest_neighbor() {
         }
     }
     std::cout << "max_weight: " << max_weight << std::endl;
+    std::cout << "leaf_size: " << leaf_size << std::endl;
+    std::cout << "knn_size: " << knn_size << std::endl;
 
     _W.resize(_data.cols(), _data.cols());
 
@@ -121,6 +127,7 @@ bool Spectral::build_adjacency_matrix_nearest_neighbor() {
         for (size_t id = 0; id < dv.size(); ++id) {
             if (i == dv[id].value) {
                 _W(i, dv[id].value) = 0;
+                continue;
             }
 
             const Eigen::VectorXd d2 = _data.col(dv[id].value);
@@ -142,11 +149,13 @@ bool Spectral::build_adjacency_matrix_nearest_neighbor() {
 
 bool Spectral::build_Laplacian_matrix(NORMALIZED_LAPLACIAN normalized_laplacian) {
     if (normalized_laplacian == NORMALIZED_LAPLACIAN::NONE) {
+        std::cout << "build_Laplacian_matrix: NONE" << std::endl;
         return build_Laplacian_matrix_none();
     } else if (normalized_laplacian == NORMALIZED_LAPLACIAN::SYM) {
-        ;
+        std::cout << "build_Laplacian_matrix: SYM" << std::endl;
     } else if (normalized_laplacian == NORMALIZED_LAPLACIAN::RW) {
-        ;
+        std::cout << "build_Laplacian_matrix: RW" << std::endl;
+        return build_Laplacian_matrix_RW();
     } else {
         std::cerr << "normalized laplacian invalid" << std::endl;
         return false;
@@ -162,6 +171,19 @@ bool Spectral::build_Laplacian_matrix_none() {
         D(i, i) = d(i);
     }
     _L = D - _W;
+    return true;
+}
+
+bool Spectral::build_Laplacian_matrix_RW() {
+    // Degree of every point
+    Eigen::MatrixXd D = Eigen::MatrixXd::Zero(_data.cols(), _data.cols());
+    Eigen::VectorXd d = _W.rowwise().sum();
+    for (size_t i = 0; i < _data.cols(); ++i) {
+        D(i, i) = d(i);
+    }
+
+    Eigen::MatrixXd I = Eigen::MatrixXd::Identity(_data.cols(), _data.cols());
+    _L = I - D.inverse() * _W;
     return true;
 }
 
