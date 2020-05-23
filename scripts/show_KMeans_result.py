@@ -11,6 +11,7 @@ input_path = sys.argv[1]
 
 plt.figure()
 
+color = ['#377eb8', '#ff7f00', '#4daf4a','#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 names = os.listdir(input_path)
 plot_num = 1
 for n in names:
@@ -27,12 +28,18 @@ for n in names:
             print('y size: ', len(y))
             cluster_data.append(x)
             cluster_data.append(y)
-    print(len(cluster_data))
+    print('len(cluster_data): ', len(cluster_data))
     plt.subplot(1, len(names), plot_num)
     plt.title(n, size=18)
-    plt.scatter(cluster_data[0], cluster_data[1], s=10, color="#377eb8")
-    plt.scatter(cluster_data[2], cluster_data[3], s=10, color="#ff7f00")
-    plt.scatter(cluster_data[4], cluster_data[5], s=10, color="#4daf4a")
+
+    if len(cluster_data) / 2 < len(color):
+        end = len(cluster_data)
+    else:
+        end = len(color) - 1
+    print('end: ', end)
+    for i in range(0, end, 2):
+        print(i)
+        plt.scatter(cluster_data[0 + i], cluster_data[1 + i], s=10, color=color[i/2])
     plt.xticks(())
     plt.yticks(())
     plot_num += 1
