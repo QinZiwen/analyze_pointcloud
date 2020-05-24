@@ -2,7 +2,8 @@ ADD_LIBRARY(Clustering SHARED
     KMeans.cpp
     GMM.cpp
     spectral.cpp
-    mean_shift.cpp)
+    mean_shift.cpp
+    DBSCAN.cpp)
 TARGET_LINK_LIBRARIES(Clustering Nearest_Neighbors)
 
 ADD_EXECUTABLE(KMeans_test KMeans_test.cpp)

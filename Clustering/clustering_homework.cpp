@@ -2,6 +2,7 @@
 #include "Clustering/GMM.h"
 #include "Clustering/spectral.h"
 #include "Clustering/mean_shift.h"
+#include "Clustering/DBSCAN.h"
 
 #include <sys/time.h>
 
@@ -47,8 +48,8 @@ bool read_data_from_file(const std::string& file_name, Eigen::Matrix<double, Eig
 }
 
 int main(int argc, char** argv) {
-    // 1: k-means; 2: GMM; 3: spectral; 4: mean-shift
-    const int method_type = 4;
+    // 1: k-means; 2: GMM; 3: spectral; 4: mean-shift; 5 DBSCAN
+    const int method_type = 5;
     std::string input_path(argv[1]);
     std::string output_path(argv[2]);
     std::vector<std::string> names;
@@ -158,6 +159,30 @@ int main(int argc, char** argv) {
 
             std::string output_name = output_path + "/" + n;
             mean_shift.save_cluster_data_to_file(output_name);
+            // break;
+        }
+    } if (method_type == 5) {
+        for (const auto& n : names) {
+            std::cout << n << std::endl;
+            std::string name = input_path + "/" + n;
+            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> data;
+            if (!read_data_from_file(name, data)) {
+                std::cerr << "run read_data_from_file failure" << std::endl;
+                return 1;
+            }
+            // std::cout << "data:\n" << data << std::endl;
+
+            gettimeofday(&process_start, NULL);
+            AAPCD::DBSCAN dbscan;
+            dbscan.input(data);
+            dbscan.compute(0.45, 5);
+            gettimeofday(&process_end, NULL);
+            process_timer = process_end.tv_sec - process_start.tv_sec + (float)(process_end.tv_usec - process_start.tv_usec)/1000000; 
+            std::cout << "Spectral time: " << process_timer << " s" << std::endl;
+            dbscan.print();
+
+            std::string output_name = output_path + "/" + n;
+            dbscan.save_cluster_data_to_file(output_name);
             // break;
         }
     } else {

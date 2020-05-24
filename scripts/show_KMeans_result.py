@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 import sys
 import os
+import math
 
 # input_path下有多个文件，每一个文件为一个数据的聚类结果
 # 文件的每一行为一个类别，比如两类，文件就有两行，每一行为一类数据，如果是二维数据则：x y x y ...
@@ -13,6 +14,7 @@ plt.figure()
 
 color = ['#377eb8', '#ff7f00', '#4daf4a','#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 names = os.listdir(input_path)
+rows = math.floor(len(names)/3) + len(names)%3
 plot_num = 1
 for n in names:
     file_name = os.path.join(input_path, n)
@@ -29,7 +31,7 @@ for n in names:
             cluster_data.append(x)
             cluster_data.append(y)
     print('len(cluster_data): ', len(cluster_data))
-    plt.subplot(1, len(names), plot_num)
+    plt.subplot(rows, 3, plot_num)
     plt.title(n, size=18)
 
     if len(cluster_data) / 2 < len(color):

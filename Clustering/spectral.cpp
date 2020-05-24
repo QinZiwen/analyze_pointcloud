@@ -242,7 +242,7 @@ bool Spectral::save_cluster_data_to_file(const std::string& file_name) {
 
     ofs.close();
     std::cout << "save result to " << file_name << std::endl;
-    return false;
+    return true;
 }
 
 void Spectral::print_clusters() {

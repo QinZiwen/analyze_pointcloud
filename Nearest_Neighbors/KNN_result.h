@@ -50,6 +50,7 @@ public:
     int size();
     void print();
     double worst_distance();
+    std::vector<DistanceValue> get_distance_value();
 
 private:
     double _radius;

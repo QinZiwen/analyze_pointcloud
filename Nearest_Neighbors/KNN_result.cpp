@@ -84,3 +84,7 @@ void KNNResultRadius::print() {
 double KNNResultRadius::worst_distance() {
     return _radius;
 }
+
+std::vector<DistanceValue> KNNResultRadius::get_distance_value() {
+    return _distance_value;
+}
