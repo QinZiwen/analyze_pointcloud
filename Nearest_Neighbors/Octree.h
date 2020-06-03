@@ -27,6 +27,11 @@ typedef struct Octant {
       extent(extent_),
       value_indices(value_indices_),
       is_leaf(is_leaf_) {}
+    
+    void print() {
+        std::cout << "center: " << center.transpose() << ", extent: " << extent
+                << ", value_indices: " << value_indices.size() << ", is_leaf: " << is_leaf << std::endl;
+    }
 } Octant;
 
 class Octree {

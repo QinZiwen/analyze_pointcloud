@@ -42,7 +42,7 @@ bool Octree::octree_recursive_build(
         std::cout << "extent: " << extent << std::endl;
     }
     if (root == nullptr) {
-        root.reset(new Octant(center, extent, value_indices, true));
+        root.reset(new Octant(center, extent, value_indices, false));
     }
 
     if (value_indices.size() <= _leaf_size || extent <= _min_extent) {

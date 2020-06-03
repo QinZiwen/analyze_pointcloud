@@ -12,6 +12,11 @@ bool VoxelGridDownsampling::set_data(const std::string& pts_file) {
     return true;
 }
 
+bool VoxelGridDownsampling::set_data(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& data) {
+    _pcd = data;
+    return true;
+}
+
 bool VoxelGridDownsampling::downsampling(double grid_size, SelectPointsMethod select_pts_method) {
     Eigen::Vector3d min = _pcd.rowwise().minCoeff();
     Eigen::Vector3d max = _pcd.rowwise().maxCoeff();

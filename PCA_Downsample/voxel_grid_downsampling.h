@@ -14,8 +14,13 @@ public:
     };
 
     bool set_data(const std::string& pts_file);
+    bool set_data(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>& data);
     bool downsampling(double grid_size, SelectPointsMethod select_pts_method = SelectPointsMethod::CENTROID);
     bool save_to_file(const std::string& file_name);
+
+    const std::vector<std::pair<int, Eigen::Vector3d>>& get_downsampel_result() {
+        return _downsample;
+    }
 
 private:
     bool select_centroid(std::vector<std::pair<int, Eigen::Vector3d>>& downsample);
