@@ -21,11 +21,6 @@ bool FindGround::find(const METHOD& method) {
 }
 
 bool FindGround::find_use_octree() {
-    const bool is_downsample = false;
-    const double vgd_grid_size = 1;
-    const double octree_leaf_size = 30;
-    const double octree_min_length = 10;
-
     // downsample
     if (is_downsample) {
         std::cout << "downsampe before size: " << _input_data.cols() << std::endl;
@@ -43,7 +38,6 @@ bool FindGround::find_use_octree() {
     }
 
     // 1. create octree
-    Octree octree;
     octree.input(_data);
     if (!octree.build(octree_leaf_size, octree_min_length)) {
         std::cout << "build octree failure" << std::endl;
@@ -58,27 +52,22 @@ bool FindGround::find_use_octree() {
     }
 
     // 4. collect inlier using plane direction
-    // _save_octree_ofs.open("octree_data_with_color.txt");
-    // if (!_save_octree_ofs.is_open()) {
-    //     std::cerr << "Can not open octree_data_with_color.txt" << std::endl;
-    //     return false;
-    // }
-    // srand(time(0));
-
-    // for (size_t i = 0; i < _data.cols(); ++i) {
-    //     if (distance_plane(_data.col(i)) < 0.5) {
-    //         _save_octree_ofs << _data(0, i) << " "
-    //                     << _data(1, i) << " "
-    //                     << _data(2, i) << " "
-    //                     << std::to_string(1) << " "
-    //                     << std::to_string(0) << " "
-    //                     << std::to_string(0) << std::endl;
-    //     }
-    // }
-
-    // _save_octree_ofs.close();
+    if (!collect_inlier_using_plane_direction()) {
+        std::cerr << "collect_inlier_using_plane_direction failed" << std::endl;
+        return false;
+    }
 
     // 5. cluster ground from inlier using DBSCAN
+    // 原来想的是用DBSCAN来refine结果，但是最后觉得不太适合激光点云数据，因为激光点云进近处密，远处疏。
+    // 用RANSAC refine结果，具体：
+    // 1. 估计平面方程的参数
+    // 2. 根据距离筛选出距离平面近的点作为ground点
+    if (!refine_ground_point()) {
+        std::cout << "refine_ground_point faild to run" << std::endl;
+        return false;
+    }
+
+    std::cout << "find_use_octree done" << std::endl;
     return true;
 }
 
@@ -249,7 +238,7 @@ bool FindGround::fitting_plane_RANSAC(const Eigen::MatrixXd& points, int min_num
             }
         }
         inlier_ratio /= num_point;
-        std::cout << "inlier_ratio: " << inlier_ratio << std::endl;
+        // std::cout << "inlier_ratio: " << inlier_ratio << std::endl;
 
         // inlier 满足阈值
         if (inlier_ratio > 0.95) {
@@ -334,8 +323,137 @@ double FindGround::distance_plane(const Eigen::VectorXd& point) {
     Eigen::VectorXd tmp_normal = normal / normal.sum();
     dis = abs(double(tmp_normal.transpose() * p_norm) - 1);
 
-    std::cout << "dis: " << dis << std::endl;
+    // std::cout << "dis: " << dis << std::endl;
     return dis;
+}
+
+bool FindGround::collect_inlier_using_plane_direction() {
+    // 每一个点利用临域内的点估计法向量，然后与估计的地面法向量计算夹角，夹角比较小的归位inlire
+    OctreeAVLNearestNeighbors nn;
+    nn.set_data(_data, octree_leaf_size, octree_min_length);
+
+    _inlier_idx.clear();
+    for (size_t i = 0; i < _data.cols(); ++i) {
+        Eigen::VectorXd point = _data.col(i);
+
+        KNNResultRadius knn_res(_knn_radius);
+        nn.KNN_search_radius(point, knn_res);
+
+        std::vector<DistanceValue> dv = knn_res.get_distance_value();
+        Eigen::VectorXd est_normal = Eigen::VectorXd::Zero(3);
+        if (dv.size() > 2) {
+            // estimate normal
+            Eigen::MatrixXd neig = Eigen::MatrixXd::Zero(3, dv.size());
+            for (size_t k = 0; k < dv.size(); ++k) {
+                neig.col(k) = _data.col(dv[k].value);
+            }
+
+            PCA pca;
+            pca.input(neig);
+            if (!pca.compute(PCA::eigen_vector_order::ASCENDING)) {
+                std::cerr << "PCA compute failed" << std::endl;
+                return false;
+            }
+            Eigen::MatrixXd eigen_values = pca.get_eigen_values();
+            // std::cout << "eigen_values: \n" << eigen_values << std::endl;
+
+            const Eigen::MatrixXd&  eigen_vector = pca.get_eigen_vector();
+            est_normal = eigen_vector.col(0);
+            // std::cout << "est_normal: " << est_normal.transpose() << std::endl;
+
+            Eigen::VectorXd ground_normal = _ground_param.topRows(3);
+            // std::cout << "ground_normal: " << ground_normal.transpose() << std::endl;
+            double dis = abs(double(ground_normal.transpose() * est_normal) / (ground_normal.norm() * est_normal.norm()));
+            // std::cout << "dis: " << dis << std::endl;
+
+            if (abs(dis - 1) < 0.05) {
+                _inlier_idx.emplace_back(i);
+            }
+        }
+
+        std::cout << "collect_inlier_using_plane_direction schedule: "
+                << i << ":" << _data.cols() << " = " << double(i) / _data.cols() << std::endl;
+    }
+
+    std::cout << "collect_inlier_using_plane_direction inlier size: " << _inlier_idx.size()
+            << ", ratio: " << double(_inlier_idx.size()) / _data.cols() << std::endl;
+
+    // save inlier
+    if (_save_octree_to_file && _save_collect_inlier_using_plane_direction) {
+        for (size_t i = 0; i < _data.cols(); ++i) {
+            bool is_inlier = false;
+            for (const auto& in : _inlier_idx) {
+                if (i == in) {
+                    is_inlier = true;
+                    break;
+                }
+            }
+
+            _save_octree_ofs << _data(0, i) << " "
+                            << _data(1, i) << " "
+                            << _data(2, i) << " ";
+            if (is_inlier) {   // red
+                _save_octree_ofs << std::to_string(1) << " "
+                            << std::to_string(0) << " "
+                            << std::to_string(0) << std::endl;
+            } else {  // gree
+                _save_octree_ofs << std::to_string(0) << " "
+                            << std::to_string(1) << " "
+                            << std::to_string(0) << std::endl;
+            }
+        }
+    }
+    return true;
+}
+
+bool FindGround::refine_ground_point() {
+    if (_inlier_idx.size() < 10) {
+        std::cerr << "Inlier too few" << std::endl;
+        return false;
+    }
+
+    Eigen::MatrixXd inlier_data = Eigen::MatrixXd::Zero(3, _inlier_idx.size());
+    for (size_t i = 0; i < _inlier_idx.size(); ++i) {
+        inlier_data.col(i) = _data.col(_inlier_idx[i]);
+    }
+    std::cout << "inlier to refine: " << inlier_data.cols() << std::endl;
+
+    if (!fitting_plane_RANSAC(inlier_data, 10, 35, _ground_param)) {
+        std::cerr << "fitting_plane_RANSAC failed" << std::endl;
+        return false;
+    }
+    std::cout << "ground param after refine: " << _ground_param.transpose() << std::endl;
+
+    if (_save_octree_to_file && _save_refine_ground_point) {
+        std::cout << "save result to file, ground is red, otherwise is green ..." << std::endl;
+
+        for (size_t i = 0; i < _data.cols(); ++i) {
+            bool is_inlier = false;
+            Eigen::VectorXd point = _data.col(i);
+            Eigen::VectorXd ground_norm = _ground_param.topRows(3);
+
+            double dis = double(abs(ground_norm.transpose() * point + _ground_param[3]))
+                    / (ground_norm.norm() * point.norm());
+            if (dis < 0.05) {
+                is_inlier = true;
+            }
+
+            // save to file
+            _save_octree_ofs << _data(0, i) << " "
+                                << _data(1, i) << " "
+                                << _data(2, i) << " ";
+            if (is_inlier) {   // red
+                _save_octree_ofs << std::to_string(1) << " "
+                            << std::to_string(0) << " "
+                            << std::to_string(0) << std::endl;
+            } else {  // gree
+                _save_octree_ofs << std::to_string(0) << " "
+                            << std::to_string(1) << " "
+                            << std::to_string(0) << std::endl;
+            }
+        }
+    }
+    return true;
 }
 
 }  // namespace AAPCD
