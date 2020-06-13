@@ -14,3 +14,8 @@ $ make
 ```
 
 > 注意：编译的可执行程序在工程的bin下，library在工程lib目录下。
+
+# 部分结果截图：
+![](https://github.com/QinZiwen/analyze_pointcloud/blob/master/images/PCA/PCA.png)
+![](https://github.com/QinZiwen/analyze_pointcloud/blob/master/images/PCA/downsample.png)
+![点云中地面分割](https://github.com/QinZiwen/analyze_pointcloud/blob/master/images/Fitting/find_ground.png)
